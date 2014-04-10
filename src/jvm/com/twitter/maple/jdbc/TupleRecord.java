@@ -49,8 +49,15 @@ public class TupleRecord implements DBWritable {
     public void readFields( ResultSet resultSet ) throws SQLException {
         tuple = new Tuple();
 
-        for( int i = 0; i < resultSet.getMetaData().getColumnCount(); i++ )
-            tuple.add( resultSet.getObject( i + 1 ) );
+        for( int i = 0; i < resultSet.getMetaData().getColumnCount(); i++ ) {
+          Object o = resultSet.getObject( i + 1 );
+          // If this is a Date column and you are using any of the UTC-based fields in MySQL,
+          // the timezone conversion wont be done if you put it back to MySQL. This allows it to work.
+          if ( o instanceof java.sql.Date ) {
+            o = new java.util.Date( ( (java.sql.Date)o ).getTime() );
+          }
+          tuple.add( o );
+        }
     }
 
 }
