@@ -215,7 +215,7 @@ public class DBOutputFormat<K extends DBWritable, V> implements OutputFormat<K, 
         if (fieldNames.length > 0 && fieldNames[0] != null) {
             query.append(" (");
             for (int i = 0; i < fieldNames.length; i++) {
-                query.append(fieldNames[i]);
+                query.append(escapeFieldName(fieldNames[i]));
                 if (i != fieldNames.length - 1) { query.append(","); }
             }
             query.append(")");
@@ -231,12 +231,16 @@ public class DBOutputFormat<K extends DBWritable, V> implements OutputFormat<K, 
         if (replaceOnInsert) {
           query.append(" ON DUPLICATE KEY UPDATE ");
           for (int i = 0; i < fieldNames.length; i++) {
-              query.append(String.format("%s=VALUES(%s)", fieldNames[i], fieldNames[i]));
+              query.append(String.format("%s=VALUES(%s)", escapeFieldName(fieldNames[i]), escapeFieldName(fieldNames[i])));
               if (i != fieldNames.length - 1) { query.append(","); }
           }
         }
 
         return query.toString();
+    }
+
+    protected String escapeFieldName( String field ) {
+        return field;
     }
 
     protected String constructUpdateQuery(String table, String[] fieldNames, String[] updateNames) {
@@ -261,7 +265,7 @@ public class DBOutputFormat<K extends DBWritable, V> implements OutputFormat<K, 
 
                 if (count != 0) { query.append(","); }
 
-                query.append(fieldNames[i]);
+                query.append(escapeFieldName(fieldNames[i]));
                 query.append(" = ?");
 
                 count++;

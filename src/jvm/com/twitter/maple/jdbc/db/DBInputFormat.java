@@ -100,7 +100,7 @@ public class DBInputFormat<T extends DBWritable>
                 query.append("SELECT ");
 
                 for (int i = 0, sz = fieldNames == null ? 0 : fieldNames.length; i < sz; i++) {
-                    query.append(fieldNames[i]);
+                    query.append(escapeFieldName(fieldNames[i]));
 
                     if (i != fieldNames.length - 1)
                         query.append(", ");
@@ -138,6 +138,10 @@ public class DBInputFormat<T extends DBWritable>
             }
 
             return query.toString();
+        }
+
+        protected String escapeFieldName( String field ) {
+            return field;
         }
 
         /** {@inheritDoc} */
