@@ -140,10 +140,6 @@ public class DBInputFormat<T extends DBWritable>
             return query.toString();
         }
 
-        protected String escapeFieldName( String field ) {
-            return field;
-        }
-
         /** {@inheritDoc} */
         public void close() throws IOException {
             try {
@@ -291,6 +287,11 @@ public class DBInputFormat<T extends DBWritable>
     protected String conditions;
     protected long limit;
     protected int maxConcurrentReads;
+
+
+    protected String escapeFieldName( String field ) {
+        return field;
+    }
 
 
     /** {@inheritDoc} */
