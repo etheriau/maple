@@ -143,9 +143,20 @@ public class DBInputFormat<T extends DBWritable>
         /** {@inheritDoc} */
         public void close() throws IOException {
             try {
-                connection.commit();
-                results.close();
-                statement.close();
+                try {
+                    connection.commit();
+                } finally {
+                    try {
+                        results.close();
+                    } catch ( SQLException sqe ) {
+                        LOG.warn( "Error closing results", sqe );
+                    }
+                    try {
+                        statement.close();
+                    } catch ( SQLException sqe ) {
+                        LOG.warn( "Error closing statement", sqe );
+                    }
+                }
             } catch (SQLException exception) {
                 throw new IOException("unable to commit and close", exception);
             } finally {
@@ -391,9 +402,17 @@ public class DBInputFormat<T extends DBWritable>
 
             long chunkSize = (count / chunks);
 
-            results.close();
+            try {
+                results.close();
+            } catch ( SQLException sqe ) {
+                LOG.warn( "Error closing results", sqe );
+            }
             results = null;
-            statement.close();
+            try {
+                statement.close();
+            } catch ( SQLException sqe ) {
+                LOG.warn( "Error closing statement", sqe );
+            }
             statement = null;
 
             InputSplit[] splits = new InputSplit[chunks];

@@ -76,12 +76,25 @@ public class DBOutputFormat<K extends DBWritable, V> implements OutputFormat<K, 
 
         /** {@inheritDoc} */
         public void close(Reporter reporter) throws IOException {
-            executeBatch();
-
             try {
-                if (insertStatement != null) { insertStatement.close(); }
-
-                if (updateStatement != null) { updateStatement.close(); }
+                try {
+                    executeBatch();
+                } finally {
+                    if (insertStatement != null) {
+                        try {
+                            insertStatement.close();
+                        } catch ( SQLException sqe ) {
+                            LOG.warn( "Error closing statement", sqe );
+                        }
+                    }
+                    if (updateStatement != null) {
+                        try {
+                            updateStatement.close();
+                        } catch ( SQLException sqe ) {
+                            LOG.warn( "Error closing statement", sqe );
+                        }
+                    }
+                }
 
                 connection.commit();
             } catch (SQLException exception) {
